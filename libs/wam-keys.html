@@ -1,0 +1,35 @@
+<dom-element id="wam-keys">
+<template>
+	<style>
+		#keys { height:73px; width:100%; padding:5px; background:#444;
+			border-radius:2px; box-sizing:border-box; }
+	</style>
+	<div id="keys"></div>
+</template>
+<script>
+	Polymer({ is:"wam-keys",
+		properties: {
+			controller:Object,
+			width: { type:Number, value:631 },
+			octaves: { type:Number, value:6 },
+			hilite: { type:String, value:"#2ecc71" },
+			enabled: { type:String, value:"true", observer: "_onenable" }
+		},
+		_enabled: true,
+		_onenable: function () { this._enabled = (this.enabled === "true"); },
+		ready: function ()
+		{
+			// -- keyboard
+			var self = this;
+			var midikeyboard = new QwertyHancock({
+				container: this.$.keys, width: this.width, height: 60, margin:35,
+				octaves: this.octaves, startNote: 'C2', oct:4,
+				whiteNotesColour: 'white', blackNotesColour: 'black', activeColour: this.hilite
+				});
+			midikeyboard.keyDown = function (note, name) { if (self._enabled) self.controller.postMidi( [0x90, note, 100]); }
+			midikeyboard.keyUp   = function (note, name) { if (self._enabled) self.controller.postMidi( [0x80, note, 100]); }
+		}
+	});
+</script>
+<script src="qwerty-hancock.js"></script>
+</dom-element>

@@ -1,0 +1,79 @@
+<dom-element id="lcd-display">
+	<style>
+		:host { display:block; overflow:hidden; }
+		@font-face { font-family: 'lcd'; src: url('font-bpdots.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+		canvas { position:relative; margin:0; padding:0; }
+		#text { padding:0; margin:0; position:relative;
+			font-family:lcd; font-weight:bold; background:transparent;
+			font-size:20px; line-height:20px; cursor:default; color:black;
+			}
+	</style>
+	<template>
+		<canvas id="background" width="200" height="50"></canvas>
+		<div id="text"></div>
+		<div id="contentHolder" hidden="true">
+			<content id="content">{{_onContent()}}</content>
+		</div>
+	</template>
+	<script>
+	Polymer({
+		is: "lcd-display",
+		properties: {
+			rows: { type:Number, value:2,  observer:'_onSize' },
+			cols: { type:Number, value:10, observer:'_onSize' },
+			text: { type:String, value:null, observer:'_onText' },
+			padding: { type:Number, value:4, observer:'_onSize' },
+			backcolor: { type:String, value:'#29FE2F', observer:'drawBackground' },
+			cellcolor: { type:String, value:'#74DF29', observer:'drawBackground' },
+		},
+		_wcell: 10,
+		_hcell: 18,
+		_dcell: 2,
+		_onSize: function (value,old)
+		{
+			var w = this.cols * (this._wcell + this._dcell) - this._dcell + 2*this.padding;
+			var h = this.rows * (this._hcell + this._dcell) - this._dcell + 2*this.padding;
+			this.$.background.width  = this.style.width  = w;
+			this.$.background.height = this.style.height = h;
+			this.$.text.style.top  = (-h-5+this.padding) + "px";
+			this.$.text.style.left = this.padding + "px";
+			if (old != undefined) this.drawBackground();
+			// this.style.height = h;
+			// this.style.width  = w;
+		},
+		_onText: function (value,old)
+		{
+			if (value == null) return;
+			value = value.replace("/n", "\n");
+			this.$.text.innerHTML = value.replace(" ", "&nbsp;");
+		},
+		_onContent: function ()
+		{
+			this._onText(Polymer.dom(this.$.content).getDistributedNodes()[0].textContent);
+		},
+		ready: function ()
+		{
+			this.style.display  = "block";	// css :host dnw in 1.0.0
+			this.style.overflow = "hidden";
+			this._ctx = this.$.background.getContext("2d");
+			this.drawBackground();
+		},
+		drawBackground: function ()
+		{
+			if (!this._ctx) return;
+			var w = this.$.background.width;
+			var h = this.$.background.height;
+			this._ctx.fillStyle = this.backcolor;
+			this._ctx.fillRect(0,0,w,h);
+			this._ctx.fillStyle = this.cellcolor;
+			for (var r=0; r<this.rows; r++)
+				for (var c=0; c<this.cols; c++)
+				{
+					var x = c * (this._wcell + this._dcell) + this.padding;
+					var y = r * (this._hcell + this._dcell) + this.padding;
+					this._ctx.fillRect(x,y, this._wcell, this._hcell);
+				}
+		}
+	});
+	</script>
+</dom-element>

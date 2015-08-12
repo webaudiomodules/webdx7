@@ -1,0 +1,176 @@
+<dom-element id="simple-toggle">
+	<style>
+		#toggle { width:29px; height:10px; line-height:10px; text-align:center;
+			font-family:"gill sans",sans-serif; font-size:8px; borderx:1px solid black; 
+			cursor:pointer; padding-top:2; color:#fff; font-weight:100; }
+		.checked { color:lightgreen !important; }
+	</style>
+	<template>
+		<div id="toggle"><content></content></div>
+	</template>
+	<script>
+		Polymer({ is: "simple-toggle",
+		properties: {
+			checked: { type:Boolean, value:false,  observer:'_onchecked' },
+		},
+		_onchecked: function ()
+		{
+			if (this.checked) this.$.toggle.classList.add("checked");
+			else this.$.toggle.classList.remove("checked");
+		}
+		});
+	</script>
+</dom-element>
+	
+<dom-element id="dx-freq">
+	<style>
+		:host { display:block; }
+		lcd-display { border:2px solid #000; clear:both; }
+		.overlay { display:block; position:relative; cursor:ns-resize; }
+		.toggle { position:relative; }
+		.label { font-family:"gill sans",sans-serif; font-size:8px;
+			float:left; text-align: center; color:#ddd }
+		#disp,#mode { float:left; }
+		#ratio,#fixed { top:13px; }
+	</style>
+	<template>
+		<div id="disp">
+			<div class="label">COARSE</div>
+			<div class="label">FINE</div>
+			<lcd-display id="lcd" rows="1" cols="5" padding="2"></lcd-display>
+			<div id="coarse" class="overlay"></div>
+			<div id="fine" class="overlay"></div>
+		</div>
+		<div id="mode">
+			<simple-toggle id="ratio" class="toggle" checked="true">RATIO</simple-toggle>
+			<simple-toggle id="fixed" class="toggle">FIXED</simple-toggle>
+		</div>
+	</template>
+	<script>
+		Polymer({ is: "dx-freq",
+		properties: {
+			mode: { type:String, value:"ratio",  observer:'_onmode' },
+		},
+		ready: function ()
+		{
+			this.async(function () {
+			// this.style.display = "block";	// css :host dnw in 1.0.0
+			this.$.lcd.text = " 1.00";
+			// this.$.lcd.backcolor = "#eee";
+			// this.$.lcd.cellcolor = "#ddd";
+			var w = this.$.lcd.offsetWidth;
+			var h = this.$.lcd.offsetHeight;
+			var overlays = [this.$.coarse, this.$.fine];
+			for (var i=0; i<2; i++)
+			{
+				var o = overlays[i];
+				o.style.height = h;
+				o.style.top  = -h * (i+1);
+				o.style.left =  w / 2 * i;
+				o.style.width = w / 2;
+			}
+			var labels = document.querySelectorAll(".label");
+			for (var i=0; i<labels.length; i++)
+				labels[i].style.width = w / 2;
+			/* this.$.ratio.style.top = -h * 2 + 4; // 2;
+			this.$.fixed.style.top = -h * 2 - 6; // 10;
+			this.$.fixed.style.left = w / 2; */
+			// this.style.width  = w + "px";
+			// this.style.width = "200px";
+			// this.style.height = h + 13 + "px";
+			this.$.disp.style.height = h + 9 + "px";
+			this.$.mode.style.height = h + 9 + "px";
+			this.addEventListener("mousedown", this, true);
+			this.$.ratio.addEventListener("click", this._onmodeclicked.bind(this));
+			this.$.fixed.addEventListener("click", this._onmodeclicked.bind(this));
+			},1);
+		},
+		setValue: function (mode, coarse, fine)
+		{
+			this.coarse = coarse;
+			this.fine = fine;
+			this.mode = mode ? "fixed" : "ratio";
+			this._updateText();
+		},
+		_dragcoarse: false,
+		_prevpos: 0,
+		coarse: 1,
+		fine:0,
+		_clamp: function (v, min,max)
+		{
+			if (v > max) v = max;
+			else if (v < min) v = min;
+			return v;
+		},
+		handleEvent: function (e)
+		{
+			if (e.type == "mousedown")
+			{
+				if (e.target.id != "coarse" && e.target.id != "fine") return;
+				this._dragcoarse = e.target.id == "coarse";
+				this._prevpos = e.clientY;
+				window.addEventListener("mousemove", this, false);
+				window.addEventListener("mouseup", this, false);
+			}
+			else if (e.type == "mousemove")
+			{
+				var value;
+				var p = e.clientY;
+				var d = (this._prevpos - p);
+				if (this._dragcoarse)
+				{
+					var max = (this.mode == "ratio") ? 32 : 3;
+					this.coarse = this._clamp(this.coarse + max*d/100, 0,max);
+					value = this.coarse | 0;
+				}
+				else
+				{
+					this.fine = this._clamp(this.fine + 99*d/100, 0,99);
+					value = this.fine | 0;
+				}
+				this._updateText();
+				this._prevpos = p;			
+				this.fire("change", { id: this._dragcoarse ? 18 : 19, value: value });
+			}
+			else if (e.type == "mouseup")
+			{
+				window.removeEventListener("mousemove", this, false);
+				window.removeEventListener("mouseup", this, false);
+			}
+		},
+		_updateText: function ()
+		{
+			var c = this.coarse | 0;
+			var f = this.fine | 0;
+			if (this.mode == "ratio")
+			{
+				if (c < 10) c = " " + c;
+				if (f < 10) f = "0" + f;
+				else if (f.toString().length == 1) f += "0";
+				this.$.lcd.text = c + "." + f;
+			}
+			else
+			{
+				var s = Math.pow(10, (this.coarse & 3) + this.fine/100) + "";
+				if (s.indexOf(".") < 0) s += ".";
+				for (var i=s.length; i<5; i++) s += "0";
+				this.$.lcd.text = s.substr(0,5);
+			}
+		},
+		_onmodeclicked: function (e)
+		{
+			var button = e.target.parentNode;
+			if (!button.checked) this.mode = button.id;
+			this.fire("change", { id: 17, value: (this.mode == "ratio") ? 0 : 1 });
+		},
+		_onmode: function ()
+		{
+			var button = (this.mode == "ratio") ? this.$.ratio : this.$.fixed;
+			button.checked = true;
+			button = button.id == "ratio" ? this.$.fixed : this.$.ratio;
+			button.checked = false;
+			this._updateText();
+		}
+		});
+	</script>
+</dom-element>

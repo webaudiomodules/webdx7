@@ -1,0 +1,110 @@
+<link rel="import" href="../../libs/lcd-display.html">
+<link rel="import" href="../../libs/bespoke/bespoke-fx.html">
+<link rel="import" href="dx-freq.html">
+<link rel="import" href="dx-knob.html">
+
+<dom-element id="dx-operator">
+<template>
+	<style>
+		.row,.col { box-sizing: border-box; }
+		.row:before,.row:after { content: " "; display: table; } 
+		.row:after { clear: both; }		
+		.col { position: relative; float: left; color:white; }
+		
+		#operator { clear:both; }
+		#operator section { border-radius:0; }
+		#colA1 { width:90px; margin:5px 10px 0 0; padding-left:10px; line-height:31px; }
+		#colA1 { background:#16a085; color:white; font-size:20px; font-weight:bold; }
+		#freq { width:100px; }
+		
+		#scaling { background:rgba(0,0,0,0.3); }
+		#operator dx-knob { width:30px; margin-right:5px; color:#ddd !important; }
+		#scaling dx-knob { width:40px; }
+		#p20 { margin-right:20px !important; }
+		#p16 { margin-left:5px; }
+		#p14 { margin-left:5px; }
+		#p13 { margin-left:5px; }
+		#operator .eg { background:#333333; color:#ddd !important; width:32px; margin-right:3px; }
+		#operator bespoke-fx { margin-left:10px; width:282px; height:45px; }
+	</style>
+	<div id="operator" class="row">
+		<div id="colA1" class="col">{{index}}</div>
+		<dx-freq id="freq" class="col"></dx-freq>
+		<dx-knob id="p20" class="col" label="detune" range="-7,7"></dx-knob>
+		<dx-knob id="p15" class="col" label="velo"	range="0,7"></dx-knob>
+		<dx-knob id="p14" class="col" label="am"		range="0,3"></dx-knob>
+		<bespoke-fx transition="move" id="sectionslider" class="col" ><div>
+			<section id="eg">
+				<template is="dom-repeat" items="{{_eglabels}}">
+					<dx-knob class="col eg" label="{{item}}" range="0,99"></dx-knob>
+				</template>
+			</section>
+			<section id="scaling">
+				<dx-knob id="p13" class="col" label="rate" range="0,7"></dx-knob>
+				<dx-knob id="p8"  class="col" label="break" range="0,99"></dx-knob>
+				<dx-knob id="p9"  class="col" label="depth L" range="0,99"></dx-knob>
+				<dx-knob id="p10" class="col" label="depth R" range="0,99"></dx-knob>
+				<dx-knob id="p11" class="col" label="curve L" range="0,3"></dx-knob>
+				<dx-knob id="p12" class="col" label="curve R" range="0,3"></dx-knob>
+			</section>
+		</div></bespoke-fx>
+		<dx-knob id="p16" class="col" label="level"	range="0,99"></dx-knob>
+	</div>
+</template>
+<script>
+	Polymer({ is:"dx-operator",
+		properties: { index:Number },
+		ready: function ()
+		{
+			this._offset = (6-this.index) * 21; 
+			this._eglabels = ["R1","R2","R3","R4","L1","L2","L3","L4"];
+			
+			// -- add event listeners and set dom-repeat knob ids
+			// -- need to delay since _eglabels define the dom-repeat items attribute
+			this.async(function ()
+			{
+				var knobs = this.querySelectorAll("dx-knob");
+				for (var i=0; i<knobs.length; i++)
+					knobs[i].addEventListener("change", this._onparam.bind(this));
+				this.$.freq.addEventListener("change", this._onparam.bind(this));
+				knobs = this.querySelectorAll(".eg");
+				for (var i=0; i<knobs.length; i++)
+					knobs[i].id = "p" + i;
+			});
+		},
+
+		// gui --> patch
+		_onparam: function (e)
+		{
+			var id,value;
+			if (e.detail.id) { id = e.detail.id; value = e.detail.value; }
+			else
+			{
+				id = parseInt(e.target.parentElement.id.substr(1));
+				value = e.target.value;
+			}
+			this.fire("param", { id: id + this._offset, value: value });
+		},
+				
+		// patch --> gui
+		setPatch: function (patch)
+		{
+			var data = patch.data;
+			var offset = this._offset;
+			
+			this.$.freq.setValue(data[offset+17], data[offset+18], data[offset+19]);
+			var egknobs = this.querySelectorAll(".eg");
+			for (var i=0; i<egknobs.length; i++)
+				egknobs[i].value = data[offset+i];
+			for (var i=8; i<=16; i++)
+				this.$["p"+i].value = data[offset + i];
+			this.$.p20.value = data[offset + 20];
+		},
+
+		showSection: function (sect)
+		{
+			this.$.sectionslider.slide = (sect == "envelope") ? 0 : 1;
+		}
+	});
+</script>
+</dom-element>

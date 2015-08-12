@@ -1,0 +1,199 @@
+<script src="../libs/polymer103/webcomponents-lite.min.js"></script>
+<link rel="import" href="../libs/polymer103/polymer.html">
+<link rel="import" href="../libs/webaudio-knob.html">
+<link rel="import" href="../libs/wam-keys.html">
+<link rel="import" href="gui/dx-operators.html">
+<link rel="import" href="gui/dx-common.html">
+
+<script src="../api/controller.js"></script>
+<script src="../api/processor.js"></script>
+<script src="../api/datachannel.js"></script>
+<script src="../api/wamutils.js"></script>
+<script src="dx7-controller.js"></script>
+<script src="dx7-patch.js"></script>
+<script src="dx7-library.js"></script>
+<script src="dx7-asm.js"></script>
+
+<dom-element id="wam-webdx7">
+<style>
+	#gui { font-family:sans-serif; background:#000; padding:5px; width:678px; }
+	#gui header { background:#444; backgroundx:linear-gradient(180deg, #5c5c5c, #414141);
+		box-sizing:border-box;  border-radius:4px; width:677px; height:50px; line-height:50px; margin-bottom:2px;
+		padding-left:10px; font-family:sans-serif; color:white; }
+	#gui .title { float:left; }
+
+	#gui .headercontrol { height:100%; float:right !important; margin-right:10px; }
+	#gui .headercontrol .hlabel { line-height:14px; margin:3px 0 1px 1px;
+		font-size:10px; font-weight:100; color:#ddd; }
+
+	#midiport { display:none; }
+	#frontpanel { display:inline-block; margin-bottom:2px; }
+	#gui .head { font-weight:500; }
+	#frontpanel section { border-radius:4px; }
+</style>
+<template>
+	<div id="gui">
+		<header>
+			<div class="title">webDX7</div>
+			<div class="headercontrol">
+				<div class="hlabel">buffersize</div>
+				<select id="buffers" on-change="_onbuffer">
+					<option>256</option>
+					<option>512</option>
+					<option>1024</option>
+					<option>2048</option>
+					<option>4096</option>
+				</select>
+			</div>
+			<div id="midiport" class="headercontrol">
+				<div class="hlabel">MIDI input</div>
+				<select id="midiports" on-change="_onport"></select>
+			</div>
+			<div class="headercontrol">
+				<div class="hlabel">Patch</div>
+				<select id="patches" on-change="_onpatch"></select>
+			</div>
+			<div class="headercontrol">
+				<div class="hlabel">Bank</div>
+				<button id="loadbank">rom1A.syx</button>
+				<input id="fileopen" type="file" style="display:none;"/>
+			</div>
+		</header>
+		<div id="frontpanel">
+			<section id="dxoperators" is="dx-operators"></section>
+			<section id="dxcommon" is="dx-common"></section>
+		</div>
+		<wam-keys id="vkeys" width="631" octaves="6"></wam-keys>
+	</div>
+</template>
+<script>
+	Polymer({ is:"wam-webdx7",
+		init: function (actx, bufsize)
+		{
+			this.controller = this.$.vkeys.controller = new WAM.Synths.webDX7();
+			return this.controller.init(actx, bufsize);
+		},
+		properties: {
+			controller: Object,
+			autoconnect: Boolean,
+			keyboard: { type: String, value:"true", observer: "_onkeyboard" },
+			buffersize: Number
+		},
+		ready: function ()
+		{
+			this._lib = new WAM.Synths.webDX7.Library();
+			this._patch = new WAM.Synths.webDX7.Patch();
+			this.style.width = "500px";
+			if (this.autoconnect)
+			{
+				this.buffersize = parseInt(window.localStorage.buffersize);
+				if (!this.buffersize) this.buffersize = 256;
+				for (var i=0; i<this.$.buffers.options.length; i++)
+					if (this.$.buffers.options[i].value == this.buffersize)
+					{
+						this.$.buffers.selectedIndex = i;
+						break;
+					}
+				WAM.utils.autoconnect(this);
+			}
+			var self = this;
+			this.onselectstart = function () { return false; }
+			this.$.dxoperators.addEventListener("param", this._onparam.bind(this));
+			this.$.dxcommon.addEventListener("param", this._onparam.bind(this));
+			this.$.loadbank.onclick = function () { self.$.fileopen.click(); }
+			this.$.fileopen.addEventListener("change", this._onbank.bind(this));
+			this._loadBank("../patches/rom1A.syx");
+			this._setupMidi();
+		},
+
+		_onparam: function (e)
+		{
+			var id = e.detail.id;
+			var value = e.detail.value;
+			this._patch.data[id] = value;
+			this.controller.setParam(id, value);
+		},
+
+		_onkeyboard: function ()
+		{
+			this.$.vkeys.enabled = this.keyboard;
+			this.$.vkeys.style.display = this.keyboard === "true" ? "block" : "none";
+		},
+		
+		_onbuffer: function (e)
+		{
+			var self = this;
+			var bufsize = parseInt(e.target.value);
+			this.controller.resize(bufsize).then( function (controller)
+			{
+				window.localStorage.buffersize = bufsize;
+				document.location.reload(true);
+				// if (self.autoconnect)
+				//	controller.connect(controller.actx.destination);
+			});
+		},
+
+		// -- patches
+		_onbank: function (e)
+		{
+			var file = e.target.files[0];
+			if (file) this._loadBank(file.name, file);
+		},
+		_loadBank: function (url, file)
+		{
+			var self = this;
+			this._lib.loadSysex(url,file).then(function(lib)
+			{
+				var combo = self.$.patches;
+				combo.innerHTML = "";
+				lib.patches.forEach(function (patch)
+				{
+					var option = new Option(patch.name);
+					combo.appendChild(option);
+				});
+				combo.selectedIndex = 10;
+				self.setPatch(lib.patches[10]);
+				if (file) self.$.loadbank.innerHTML = file.name;
+			});
+		},
+		_onpatch: function (e)
+		{
+			var patch = this._lib.patches[this.$.patches.selectedIndex];
+			this.setPatch(patch);
+		},
+		setPatch: function (patch)
+		{
+			this._patch = patch;
+			this.controller.setPatch(patch.data);
+			this.$.dxoperators.setPatch(patch);
+			this.$.dxcommon.setPatch(patch);
+		},
+
+		// -- midi
+		_setupMidi: function ()
+		{
+			WAM.utils.getMidiInputs(function (ports)
+			{
+				this._midiports = ports;
+				if (!ports || ports.length == 0) return;
+				var combo = this.$.midiports;
+				for (var i=0; i<ports.length; i++)
+					Polymer.dom(combo).appendChild(new Option(ports[i].name));
+				this._midiport = (ports.length > 1) ? ports[1] : ports[0];
+				combo.selectedIndex = (ports.length > 1) ? 1 : 0;
+				this.controller.connect(this._midiport);
+			}.bind(this));			
+			if (WAM.Environment.hasMIDI) this.$.midiport.style.display = "block";
+		},
+		_onport: function (e)
+		{
+			var index = this.$.midiports.selectedIndex;
+			this.controller.disconnectMidi();
+			this._midiport = this._midiports[index];
+			if (this._midiport) this.controller.connect(this._midiport);
+		},
+		_midiport: null,
+		_midiports: []
+	});
+</script>
+</dom-element>

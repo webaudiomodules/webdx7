@@ -1,0 +1,44 @@
+<dom-element id="dx-knob">
+	<style>
+		#label { text-align:center; font-size:8px; text-transform:uppercase; }
+	</style>
+	<template>
+		<div id="label">{{label}}</div>
+		<webaudio-knob diameter="30" sprites="100" src="LittlePhatty.png" value="{{value}}" min="{{min}}" max="{{max}}" step="1"></webaudio-knob>
+	</template>
+	<script>
+		Polymer({ is:"dx-knob",
+			_onrange: function ()
+			{
+				var minmax = this.range.split(',');
+				this.min = parseInt(minmax[0]);
+				this.max = parseInt(minmax[1]);
+			},
+			properties: {
+				label: String,
+				value: { type:Number, observer:"_onvalue" },
+				range: { type:String, value:"", observer:"_onrange" },
+				id: { type:String, observer:"_onid" }
+			},
+			ready: function ()
+			{
+				this._knob = this.querySelector("webaudio-knob");
+				if (this.value !== undefined) this._onvalue();
+				this._knob.redraw();
+			},
+			_onvalue: function () { if (this._knob) this._knob.setValue(this.value); },
+			
+			// -- we are hosting a <webaudio-knob> instead of extending it,
+			// -- because Polymer 1.0 does not support custom element extensions
+			// -- this is a workaround to pass the id (used in eventListener)
+			_onid: function ()
+			{
+				/* if (this.id != "")
+				{
+					this.querySelector("webaudio-knob").id = this.id;
+					this.id = "";
+				} */
+			}
+		});
+	</script>
+</dom-element>

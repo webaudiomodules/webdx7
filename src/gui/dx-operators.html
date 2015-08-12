@@ -1,0 +1,67 @@
+<link rel="import" href="dx-operator.html">
+
+<dom-element id="dx-operators">
+<template>
+	<style>
+		#host .row, #host .col { box-sizing: border-box; }
+		#host .row:before, #host .row:after { content: " "; display: table; } 
+		#host .row:after { clear: both; }		
+		#host .col { position: relative; float: left; color:white; }
+
+		#host dx-knob { height:44px; }
+		#headA1 { width:90px; margin-right: 10px; }
+		#headB1 { width:135px; }
+		#headC1 { width:75px; margin-left:10px; }
+		#headD1 { width:277px; margin-left:15px; }
+		#headD1 div:nth-child(1) { cursor:pointer; float:left; color:lightgreen; }
+		#headD1 div:nth-child(2) { float:left; width:20px; text-align: center; }
+		#headD1 div:nth-child(3) { cursor:pointer; float:left; }
+		#headE1 { width:30px; margin-left:10px; text-align:center; margin-bottom:5px; }
+		#scaling { background:none !important; }
+		#host .head { color:white; font-size:12px; border:none; border-bottom:1px solid white; }
+	</style>
+	<div id="host">
+	<div class="row">
+		<div id="headA1" class="col head">OPERATOR</div>
+		<div id="headB1" class="col head">FREQUENCY</div>
+		<div id="headC1" class="col head">MOD SENS</div>
+		<div id="headD1" class="col head">
+			<div id="envelope" on-click="_onknobsection">ENVELOPE</div>
+			<div>|</div>
+			<div id="scaling" on-click="_onknobsection">SCALING</div>
+		</div>
+		<div id="headE1" class="col head">OUT</div>
+	</div>
+	<template is="dom-repeat" items="{{_operators}}">
+		<dx-operator index="{{item}}"></dx-operator>
+	</template>
+</div>
+</template>
+<script>
+	Polymer({ is:"dx-operators", extends:"section",
+		ready: function ()
+		{
+			this.style.backgroundColor = "#444";
+			this.style.padding = "10px";
+			// this.style.borderRadius = "7px 7px";
+			this._operators = [6,5,4,3,2,1];
+		},
+		setPatch: function (patch)
+		{
+			var operators = this.querySelectorAll("dx-operator");
+			for (var i=0; i<operators.length; i++)
+				operators[i].setPatch(patch);
+		},
+		_onknobsection: function (e)
+		{
+			var operators = this.querySelectorAll("dx-operator");
+			for (var i=0; i<operators.length; i++)
+				operators[i].showSection(e.target.id);
+			var delite = (e.target.id == "envelope") ? "scaling" : "envelope";
+			var hilite = (e.target.id == "envelope") ? "envelope" : "scaling";
+			this.$[delite].style.color = "white";
+			this.$[hilite].style.color = "lightgreen";
+		}
+	});
+</script>
+</dom-element>

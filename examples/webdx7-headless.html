@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>webDX7 (headless)</title>
+<script src="../dist/wam.min.js"></script>
+<script src="../dist/webdx7.min.js"></script>
+<script>
+	function init()
+	{
+		// -- A. create and init the synth
+		// -- buffer size below is set to 256
+		// -- change it to 512,1024,2048 etc if you hear dropouts
+		var actx = new WAM.AudioContext();
+		var dx7  = new WAM.Synths.webDX7();
+		dx7.init(actx, 256).then(function ()
+		{
+			// -- B. connect to Web Audio API node graph
+			dx7.connect(actx.destination);
+			
+			// -- C. connect to first available MIDI input (if any)
+			WAM.utils.getMidiInputs(function (ports)
+			{
+				if (ports && ports.length > 0)
+					dx7.connect(ports[0]);
+			});
+		});
+	}
+</script>
+</head>
+<body onload="init()">
+</body>
+</html>

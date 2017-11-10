@@ -106,7 +106,7 @@ NS.Library = function ()
 			// -- unpacked single voice or bank of 32 voices
 			if (length == 163 || length == 4960)
 			{
-				if (length == 163) { data = data.subarray(6,161); length = 155; }
+				if (length == 163) { data = data.subarray(6,161); length = 155; }
 				var N = length / 155;
 				for (var i=0; i<N; i++)
 				{
@@ -124,7 +124,7 @@ NS.Library = function ()
 			// -- packed bank without sysex frame, with sysex frame, or 45 patches with sysex frame
 			else if (length == 4096 || length == 4104 || length == 5760)
 			{
-				if (length == 4104) { data = data.subarray(6,4102); length = 4096; }
+				if (length == 4104) { data = data.subarray(6,4102); length = 4096; }
 				var N = length / 128;
 				for (var i=0; i<N; i++)
 				{

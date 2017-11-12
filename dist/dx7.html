@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>WAM webDX7</title>
+  <script src="dx7/dx7-awn.js"></script>
+  <script src="dx7/dx7-lib.js"></script>
+  <script src="dx7/midi.js"></script>
+  <script src="dx7/eventstreamer.js"></script>
+  <script src="dx7/gui/gui.js"></script>
+  <script src="dx7/gui/keys.js"></script>
+  <link rel="stylesheet" href="dx7/gui/dx7.css">
+  <script>
+    function main () {
+      DX7.importScripts().then(() => {
+        var actx = new AudioContext();
+        var dx7  = new DX7(actx);
+        streamer = new EventStreamer(actx);      
+        streamer.connect(dx7);
+        dx7.connect(actx.destination);
+
+        initGUI(new DX7Library());
+        initMidi();      
+      });
+    }
+  </script>
+</head>
+  
+<body onload="main()">
+  <header>
+    <h1>Yamaha DX7 web audio module</h1>
+    powered by AudioWorklet and WebAssembly
+    <br/>WIP -- <b>requires Chrome Canary 64</b> (tested in v64.0.3257.0 64-bit, MacOS 10.12.4)
+  </header>
+  <main>
+    <div id="topbar">
+      <div>webDX7 //</div>
+      <div class="right">
+        <div class="control">
+          <label>bank</label>
+          <select id="banks"></select>
+        </div>
+        <div class="control">
+          <label>patch</label>
+          <select id="patches"></select>
+        </div>
+        <div class="control">
+          <label>midi in</label>
+          <select id="midiIn"></select>
+        </div>
+      </div>
+    </div>
+    <div id="keys"></div>
+  </main>
+  <footer>
+    more info and asmjs versions at&nbsp;<a href="http://www.webaudiomodules.org" target="_blank">webaudiomodules.org</a>
+  </footer>
+  
+  <style>
+  </style>
+</body>
+</html>

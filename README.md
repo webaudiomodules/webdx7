@@ -6,9 +6,9 @@ virtual Yamaha DX7 synth in a browser.
 Please note that AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/).
 
 ## info
-This repo contains a work-in-progress implementation of webdx7 in WebAssembly. The binary runs in AudioWorklet. Previous webdx7 incarnation ran as asmjs [WebAudioModule (WAM)](http://webaudiomodules.org). We are currently adding AudioWorklets and WebAssembly support to WAMs API. 
+This repo contains a work-in-progress implementation of webdx7 in WebAssembly. The binary runs in AudioWorklet. webdx7 is built on top of [Web Audio Modules (WAMs) API](http://webaudiomodules.org), which is currently extended to support AudioWorklets and WebAssembly. 
 
-The code here includes pure hacks to work around limitations in current AudioWorklet browser implementation, and should definitely not be considered as best practice :) WAMs API will be updated as AudioWorklets mature.
+The code here includes pure hacks to work around limitations in current AudioWorklet browser implementation, and should definitely not be considered best practice :) WAMs API will be updated as AudioWorklets mature.
 
 ## prerequisites
 * emscripten toolchain (incoming branch)

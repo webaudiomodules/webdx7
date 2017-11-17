@@ -1,7 +1,9 @@
 # webdx7 (AudioWorklet/WASM edition)
 virtual Yamaha DX7 synth in a browser.
 
-[WIP demo](http://webaudiomodules.org/demos/wasm/dx7.html)
+[webdx7 demo (WIP)](https://webaudiomodules.org/demos/wasm/dx7.html)
+
+[sneak peek to OBXD JUCE plugin](https://webaudiomodules.org/demos/wasm/obxd.html)
 
 Please note that AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/).
 

@@ -10,16 +10,27 @@
   <link rel="stylesheet" href="dx7/gui/dx7.css">
   <script>
     function main () {
-      DX7.importScripts().then(() => {
-        var actx = new AudioContext();
-        var dx7  = new DX7(actx);
-        streamer = new EventStreamer(actx);      
-        streamer.connect(dx7);
-        dx7.connect(actx.destination);
+      if (workletAvailable()) {
+        document.querySelector("#unsupported").style.display = "none";
+        document.querySelector("main").style.visibility = "visible";
+        DX7.importScripts().then(() => {
+          var actx = new AudioContext();
+          var dx7  = new DX7(actx);
+          streamer = new EventStreamer(actx);      
+          streamer.connect(dx7);
+          dx7.connect(actx.destination);
 
-        initGUI(new DX7Library());
-        initMidi();      
-      });
+          initGUI(new DX7Library());
+          initMidi();      
+        });
+      }
+    }
+    
+    // -- borrowed from Google's AudioWorklet demo page
+    function workletAvailable() {
+      return window.audioWorklet &&
+        typeof window.audioWorklet.addModule === 'function' &&
+        window.AudioWorkletNode;
     }
   </script>
 </head>
@@ -28,33 +39,39 @@
   <header>
     <h1>Yamaha DX7 web audio module</h1>
     powered by AudioWorklet and WebAssembly
-    <br/>WIP -- <b>requires Chrome Canary 64</b> (tested in v64.0.3257.0 64-bit, MacOS 10.12.4)
+    <p>synth engine ported from <a href="https://github.com/google/music-synthesizer-for-android">msfa</a>
+    <br/>wasm/audioworklet implementation 2017 by jari@webaudiomodules.org
+    <br/>WIP -- tested in Chrome Canary 64.0.3275.0 64-bit, MacOS 10.12.4
+    </p>
   </header>
+  <div id="unsupported">
+    <p>AudioWorklet is unsupported in this browser version</p>
+    more info <a href="https://googlechromelabs.github.io/web-audio-samples/audio-worklet/">here</a>
+  </div>
   <main>
-    <div id="topbar">
-      <div>webDX7 //</div>
-      <div class="right">
-        <div class="control">
-          <label>bank</label>
-          <select id="banks"></select>
-        </div>
-        <div class="control">
-          <label>patch</label>
-          <select id="patches"></select>
-        </div>
-        <div class="control">
-          <label>midi in</label>
-          <select id="midiIn"></select>
+    <div id="content">
+      <div id="topbar">
+        <div>webDX7 //</div>
+        <div class="right">
+          <div class="control">
+            <label>bank</label>
+            <select id="banks"></select>
+          </div>
+          <div class="control">
+            <label>patch</label>
+            <select id="patches"></select>
+          </div>
+          <div class="control">
+            <label>midi in</label>
+            <select id="midiIn"></select>
+          </div>
         </div>
       </div>
+      <div id="keys"></div>
     </div>
-    <div id="keys"></div>
-  </main>
-  <footer>
+    <footer>
     more info and asmjs versions at&nbsp;<a href="http://www.webaudiomodules.org" target="_blank">webaudiomodules.org</a>
-  </footer>
-  
-  <style>
-  </style>
+  </footer>  
+  </main>
 </body>
 </html>

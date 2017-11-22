@@ -15,7 +15,7 @@ class DX7 extends AudioWorkletNode
       window.audioWorklet.addModule("dx7/loader.js").then(() => {
       window.audioWorklet.addModule("dx7/wam-processor.js").then(() => {
       window.audioWorklet.addModule("dx7/dx7-awp.js").then(() => {
-        resolve();
+        setTimeout( function () { resolve(); }, 500);
       }) }) }) });      
     })
   }

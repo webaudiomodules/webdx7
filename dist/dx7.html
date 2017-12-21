@@ -10,11 +10,11 @@
   <link rel="stylesheet" href="dx7/gui/dx7.css">
   <script>
     function main () {
-      if (workletAvailable()) {
+      var actx = new AudioContext();
+      if (workletAvailable(actx)) {
         document.querySelector("#unsupported").style.display = "none";
         document.querySelector("main").style.visibility = "visible";
-        DX7.importScripts().then(() => {
-          var actx = new AudioContext();
+        DX7.importScripts(actx).then(() => {
           var dx7  = new DX7(actx);
           streamer = new EventStreamer(actx);      
           streamer.connect(dx7);
@@ -27,9 +27,10 @@
     }
     
     // -- borrowed from Google's AudioWorklet demo page
-    function workletAvailable() {
-      return window.audioWorklet &&
-        typeof window.audioWorklet.addModule === 'function' &&
+    function workletAvailable(actx) {
+      return actx.audioWorklet &&
+        actx.audioWorklet instanceof AudioWorklet &&
+        typeof actx.audioWorklet.addModule === 'function' &&
         window.AudioWorkletNode;
     }
   </script>
@@ -41,7 +42,7 @@
     powered by AudioWorklet and WebAssembly
     <p>synth engine ported from <a href="https://github.com/google/music-synthesizer-for-android">msfa</a>
     <br/>wasm/audioworklet implementation 2017 by jari@webaudiomodules.org
-    <br/>WIP -- tested in Chrome Canary 64.0.3275.0 64-bit, MacOS 10.12.4
+    <br/>WIP -- tested in Chrome Canary 65.0.3286.0 64-bit, MacOS 10.12.4
     </p>
   </header>
   <div id="unsupported">

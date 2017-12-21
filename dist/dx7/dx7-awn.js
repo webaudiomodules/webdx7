@@ -9,12 +9,12 @@ class DX7 extends AudioWorkletNode
     super(actx, "DX7", options);
   }
   
-  static importScripts () {
+  static importScripts (actx) {
     return new Promise( (resolve) => {
-      window.audioWorklet.addModule("dx7/dx7.wasm.js").then(() => {
-      window.audioWorklet.addModule("dx7/loader.js").then(() => {
-      window.audioWorklet.addModule("dx7/wam-processor.js").then(() => {
-      window.audioWorklet.addModule("dx7/dx7-awp.js").then(() => {
+      actx.audioWorklet.addModule("dx7/dx7.wasm.js").then(() => {
+      actx.audioWorklet.addModule("dx7/loader.js").then(() => {
+      actx.audioWorklet.addModule("dx7/wam-processor.js").then(() => {
+      actx.audioWorklet.addModule("dx7/dx7-awp.js").then(() => {
         setTimeout( function () { resolve(); }, 500);
       }) }) }) });      
     })

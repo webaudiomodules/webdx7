@@ -20,8 +20,7 @@ function initGUI (lib) {
   // -- change patch
   patches.onchange = function (e) {
     var patch = lib.bank[e.target.selectedIndex];
-    var e = [EventType.patch, patch.length].concat(Array.from(patch));
-    streamer.addEvent(e);
+    dx7.port.postMessage({ type:"patch", data:patch });
   }
   
   // -- midi keyboard

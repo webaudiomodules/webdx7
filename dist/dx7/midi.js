@@ -19,6 +19,5 @@ function initMidi () {
 }
 
 function onMIDI (msg) {
-  var e = [EventType.midi].concat(Array.from(msg.data));
-  streamer.addEvent(e);
+  dx7.port.postMessage({ type:"midi", data:msg.data });
 }

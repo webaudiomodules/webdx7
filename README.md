@@ -3,9 +3,10 @@ virtual Yamaha DX7 synth in a browser.
 
 [webdx7 demo (WIP)](https://webaudiomodules.org/demos/wasm/dx7.html)
 
-other demos:
+other WAM demos:
 
-[sneak peek to OBXD JUCE plugin](https://webaudiomodules.org/demos/wasm/obxd.html)
+[OBXD](https://webaudiomodules.org/demos/wasm/obxd.html) and 
+[DEXED](https://webaudiomodules.org/demos/wasm/dexed.html)
 
 Please note that low latency AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/). Other stable browsers are enabled with this [polyfill](https://github.com/jariseon/audioworklet-polyfill).
 

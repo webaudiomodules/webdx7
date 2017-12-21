@@ -3,9 +3,11 @@ virtual Yamaha DX7 synth in a browser.
 
 [webdx7 demo (WIP)](https://webaudiomodules.org/demos/wasm/dx7.html)
 
+other demos:
+
 [sneak peek to OBXD JUCE plugin](https://webaudiomodules.org/demos/wasm/obxd.html)
 
-Please note that AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/).
+Please note that low latency AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/). Other stable browsers are enabled with this [polyfill](https://github.com/jariseon/audioworklet-polyfill).
 
 ## info
 This repo contains a work-in-progress implementation of webdx7 in WebAssembly. The binary runs in AudioWorklet. webdx7 is built on top of [Web Audio Modules (WAMs) API](http://webaudiomodules.org), which is currently extended to support AudioWorklets and WebAssembly. 
@@ -43,7 +45,7 @@ open loader.js in an editor, beautify, and replace line 949 with following two l
 ### done
 We have now **dx7.wasm.js** (from step #2) and **loader.js** (from step #3). Copy these files to `dist/dx7` folder, and copy some DX7 sysex files into `dist/dx7/presets`. See readme there for instructions.
 
-Finally open `dist/dx7.html` in Chrome Canary 64 and enjoy cool authentic FM sounds straight in browser. Works with MIDI and embedded virtual keyboard.
+Finally open `dist/dx7.html` in a WASM-enabled browser and enjoy cool authentic FM sounds straight in browser. Works with MIDI and embedded virtual keyboard.
 
 
 

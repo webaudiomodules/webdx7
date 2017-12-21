@@ -1,4 +1,6 @@
+// webDX7 (WAM)
 // bank and patch handling
+// Jari Kleimola 2017 (jari@webaudiomodules.org)
 
 var DX7Library = function ()
 {

@@ -2,10 +2,10 @@
 # wasm makefile for msfa DX7
 
 TARGET = ./dx7.js
-API = ../../api/src/c
+API = ../src/wamsdk
 MSFA = ../src/c/msfa
 
-SRC = ../src/c/dx7.cc $(API)/processor.cc \
+SRC = ../src/c/dx7.cc $(API)/processor.cpp \
 	$(MSFA)/synth_unit.cc $(MSFA)/ringbuffer.cc $(MSFA)/patch.cc \
 	$(MSFA)/lfo.cc $(MSFA)/dx7note.cc $(MSFA)/freqlut.cc $(MSFA)/sin.cc $(MSFA)/exp2.cc \
 	$(MSFA)/fm_core.cc $(MSFA)/pitchenv.cc $(MSFA)/env.cc $(MSFA)/fm_op_kernel.cc

@@ -21,7 +21,7 @@ class WAMProcessor extends AudioWorkletProcessor
     if (options.outputChannelCount.length != options.numberOfOutputs) throw new Error("InvalidArgumentException");
     
     super(options);
-    this.bufsize = options.samplesPerBuffer || 128;
+    this.bufsize = 128;
     this.sr = AudioWorkletGlobalScope.sampleRate || sampleRate;    
     this.audiobufs = [[],[]];
     

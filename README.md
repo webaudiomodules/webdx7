@@ -1,23 +1,20 @@
 # webdx7 (AudioWorklet/WASM edition)
 virtual Yamaha DX7 synth in a browser.
 
-[webdx7 demo (WIP)](https://webaudiomodules.org/demos/wasm/dx7.html)
+[demo](https://webaudiomodules.org/wamsynths/dx7)
 
-other WAM demos:
-
-[OBXD](https://webaudiomodules.org/demos/wasm/obxd.html) and 
-[DEXED](https://webaudiomodules.org/demos/wasm/dexed.html)
+other WAM demos at [webaudiomodules.org/wamsynths](https://webaudiomodules.org/wamsynths/)
 
 Please note that low latency AudioWorklets require  [Chrome Canary 64](https://www.google.com/chrome/browser/canary.html) (or later) and setting a flag as explained [here](https://googlechromelabs.github.io/web-audio-samples/audio-worklet/). Other stable browsers are enabled with this [polyfill](https://github.com/jariseon/audioworklet-polyfill).
 
 ## info
-This repo contains a work-in-progress implementation of webdx7 in WebAssembly. The binary runs in AudioWorklet. webdx7 is built on top of [Web Audio Modules (WAMs) API](http://webaudiomodules.org), which is currently extended to support AudioWorklets and WebAssembly. 
+This repo contains a work-in-progress implementation of webdx7 in WebAssembly. The binary runs in AudioWorklet. webdx7 is built on top of [Web Audio Modules (WAMs) API](https://webaudiomodules.org), which is currently extended to support AudioWorklets and WebAssembly. 
 
 The code here includes pure hacks to work around limitations in current AudioWorklet browser implementation, and should definitely not be considered best practice :) WAMs API will be updated as AudioWorklets mature.
 
 ## prerequisites
-* emscripten toolchain (incoming branch)
-* node
+* WASM [toolchain](http://webassembly.org/getting-started/developers-guide/)
+* [node.js](https://nodejs.org/en/download/) 
 
 ## building
 
@@ -31,20 +28,13 @@ step #1 creates two files, **dx7.wasm** and **dx7.js**. WASM binary cannot curre
 
 ### #2 encoding
 ```
-node encode-wasm.js
+node encode-wasm.js dx7.wasm
 ```
-step #2 produces **dx7.wasm.js** file, which can be loaded into AWP. The dx7.js file produced in step #1 contains the wasm loader code. Rename it as **loader.js** and proceed to step #3.
+step #2 produces **dx7.wasm.js** file, which can be loaded into AWP.
 
-### #3 loader
-open loader.js in an editor, beautify, and replace line 949 with following two lines:
-
-```
-   "initial": TOTAL_MEMORY / WASM_PAGE_SIZE,
-   "maximum": TOTAL_MEMORY / WASM_PAGE_SIZE
-```
 
 ### done
-We have now **dx7.wasm.js** (from step #2) and **loader.js** (from step #3). Copy these files to `dist/dx7` folder, and copy some DX7 sysex files into `dist/dx7/presets`. See readme there for instructions.
+We have now **dx7.wasm.js** (from step #2) and its loader **dx7.js** (from step #1). Copy these files to `dist/dx7/wasm` folder, and copy some DX7 sysex files into `dist/dx7/presets`. See readme there for instructions.
 
 Finally open `dist/dx7.html` in a WASM-enabled browser and enjoy cool authentic FM sounds straight in browser. Works with MIDI and embedded virtual keyboard.
 

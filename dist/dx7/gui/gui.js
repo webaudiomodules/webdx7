@@ -31,7 +31,7 @@ function initGUI (lib) {
     whiteNotesColour: 'white', blackNotesColour: 'black', activeColour:'orange'
     });
   midikeys.keyDown = (note, name) => dx7.onMidi([0x90, note, velo]);
-  midikeys.keyUp   = (note, name) => dx7.onMidi([0x80, note, velo]);    
+  midikeys.keyUp   = (note, name) => dx7.onMidi([0x80, note, velo]);
 }
 
 function initMidi () {

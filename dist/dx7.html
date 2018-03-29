@@ -2,8 +2,6 @@
 <head>
   <title>WAM webDX7</title>
   <script src="audioworklet.js"></script>
-  <script src="wamsdk/wam-controller.js"></script>
-  <script src="dx7/dx7-awn.js"></script>
   <script src="dx7/dx7-lib.js"></script>
   <script src="dx7/gui/gui.js"></script>
   <script src="dx7/gui/keys.js"></script>
@@ -12,16 +10,22 @@
     var actx,dx7;
     
     function main () {
-      if (AWPF.isAudioWorkletPolyfilled)
-        actx = AWPF.context;
-      else actx = new AudioContext();
+      var controllerScripts = [
+        "wamsdk/wam-controller.js",
+        "dx7/dx7-awn.js"
+      ];
       
-      DX7.importScripts(actx).then(() => {
-        dx7 = new DX7(actx);
-        dx7.connect(actx.destination);
-        initGUI(new DX7Library());
-        initMidi();      
-      });
+      var actx = new AudioContext();
+      AWPF.polyfill(actx, controllerScripts).then( function () {
+        if (AWPF.isAudioWorkletPolyfilled)
+          document.getElementById("unsupported").style.display = "block";          
+        DX7.importScripts(actx).then(() => {
+          dx7 = new DX7(actx);
+          dx7.connect(actx.destination);
+          initGUI(new DX7Library());
+          initMidi();      
+        });
+      });      
     }
   </script>
 </head>
@@ -29,10 +33,9 @@
 <body onload="main()">
   <header>
     <h1>Yamaha DX7 web audio module</h1>
-    powered by AudioWorklet and WebAssembly
-    <p>synth engine ported from <a href="https://github.com/google/music-synthesizer-for-android">msfa</a>
-    <br/>wasm/audioworklet implementation 2017 by jari@webaudiomodules.org
-    <br/>WIP -- tested in Chrome Canary 65.0.3286.0 64-bit, MacOS 10.12.4
+    <span>powered by AudioWorklet and WebAssembly</span>
+    <p>synth engine by Raph Levien (ported from <a href="https://github.com/google/music-synthesizer-for-android">msfa</a>)
+    <br/>wasm/audioworklet implementation 2017-18 by jari@webaudiomodules.org
     </p>
   </header>
   <div id="unsupported">
@@ -61,7 +64,7 @@
       <div id="keys"></div>
     </div>
     <footer>
-    more info and asmjs versions at&nbsp;<a href="http://www.webaudiomodules.org" target="_blank">webaudiomodules.org</a>
+    more at&nbsp;<a href="https://webaudiomodules.org" target="_blank">webaudiomodules.org</a>
   </footer>  
   </main>
 </body>

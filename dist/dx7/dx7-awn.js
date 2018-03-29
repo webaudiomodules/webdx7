@@ -1,5 +1,5 @@
 // webDX7 (WAM)
-// Jari Kleimola 2017 (jari@webaudiomodules.org)
+// Jari Kleimola 2017-18 (jari@webaudiomodules.org)
 
 class DX7 extends WAMController
 {
@@ -13,12 +13,13 @@ class DX7 extends WAMController
   }
   
   static importScripts (actx) {
+    var origin = location.origin + "/";
     return new Promise( (resolve) => {
-      actx.audioWorklet.addModule("dx7/wasm/dx7.wasm.js").then(() => {
-      actx.audioWorklet.addModule("dx7/wasm/loader.js").then(() => {
-      actx.audioWorklet.addModule("wamsdk/wam-processor.js").then(() => {
-      actx.audioWorklet.addModule("dx7/dx7-awp.js").then(() => {
-        setTimeout( function () { resolve(); }, 500);
+      actx.audioWorklet.addModule(origin + "dx7/wasm/dx7.wasm.js").then(() => {
+      actx.audioWorklet.addModule(origin + "dx7/wasm/dx7.js").then(() => {
+      actx.audioWorklet.addModule(origin + "../wamsdk/wam-processor.js").then(() => {
+      actx.audioWorklet.addModule(origin + "dx7/dx7-awp.js").then(() => {
+        resolve();
       }) }) }) });      
     })
   }

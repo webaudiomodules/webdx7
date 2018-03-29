@@ -2,8 +2,9 @@ body { font-family:sans-serif; font-weight:100; font-size:14px; user-select:none
 
 header { margin-bottom:20px; }
 h1 { font-weight:100; margin:0; font-size:20px; }
+header span { font-size:12px; }
 
-#unsupported { margin-bottom:30px; }
+#unsupported { margin-bottom:30px; display:none; }
 #unsupported a { text-decoration:underline; }
 #content { width:800px; background:#000; padding:5px; }
 
@@ -17,3 +18,19 @@ li { cursor:pointer; }
 footer { width:810px; display:flex; justify-content:flex-end; font-size:12px;  color:#444; margin-top:5px;}
 a, a:visited { color:#000; text-decoration:none; }
 a:hover { text-decoration:underline; color:darkgreen; }
+
+select.moz {
+  padding-right: 25px;
+    background-image: url("data:image/svg+xml,\
+      <svg version='1.1' xmlns='http://www.w3.org/2000/svg' width='12px'\
+           height='12px' transform='translate(0,-1)' viewBox='0 0 1200 1000' fill='rgb(200,200,200)'>\
+        <path d='M1100 411l-198 -199l-353 353l-353 -353l-197 199l551 551z'/>\
+      </svg>");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 7px) 50%;
+    -moz-appearance: none;
+    appearance: none;
+  
+  border:1px solid #fff;
+  border-radius:6px; 
+}

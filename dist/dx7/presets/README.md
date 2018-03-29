@@ -1,0 +1,1 @@
+webDX7 can read native DX7 sysex dumps (currently only standard 4104 byte sysex files containing a single 32 voice bank). Put your preset banks here and edit **dist/dx7-lib.js** `banklist` object accordingly.

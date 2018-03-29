@@ -1,5 +1,5 @@
 // WAM AudioWorkletController
-// Jari Kleimola 2017 (jari@webaudiomodules.org)
+// Jari Kleimola 2017-18 (jari@webaudiomodules.org)
 // work in progress
 
 class WAMController extends AudioWorkletNode
@@ -34,4 +34,10 @@ class WAMController extends AudioWorkletNode
       this.port.postMessage({ type:"midi", data:msg.data });
     }.bind(this);
   }
+  
+  sendMessage(verb, prop, data) {
+    this.port.postMessage({ type:"msg", verb:verb, prop:prop, data:data });
+  }
+  
+  get gui () { return null; }
 }

@@ -16,27 +16,32 @@ The code here includes pure hacks to work around limitations in current AudioWor
 * WASM [toolchain](http://webassembly.org/getting-started/developers-guide/)
 * [node.js](https://nodejs.org/en/download/) 
 
-## building
+## building, distribution and demo usage
 
-### #1 wasm compilation
+### #1 wasm compilation and encoding
 ```
 cd build
 export PATH=$PATH:/to/emsdk/where/emmake/resides
 emmake make
 ```
-step #1 creates two files, **dx7.wasm** and **dx7.js**. WASM binary cannot currently be loaded into AudioWorkletProcessor (AWP) directly, so let's encode it into a JS Uint8Array in step #2.
+step #1 creates three files:
+- the loader: **dx7.js**.
+- the raw WASM binary: **dx7.wasm**
+- a JavaScript embedding of the WASM binary: **dx7.wasm.js**
 
-### #2 encoding
+### #2 copy built files to `dist/dx7/wasm`
+Next copy the built files to `dist/dx7/wasm` by running:
 ```
-node encode-wasm.js dx7.wasm
+make dist
 ```
-step #2 produces **dx7.wasm.js** file, which can be loaded into AWP.
 
-
-### done
-We have now **dx7.wasm.js** (from step #2) and its loader **dx7.js** (from step #1). Copy these files to `dist/dx7/wasm` folder, and copy some DX7 sysex files into `dist/dx7/presets`. See readme there for instructions.
+### #3 try it out
+Now that you've built webdx7 and put the files in place, copy some DX7 sysex files into `dist/dx7/presets`. See readme there for instructions.
 
 Finally open `dist/dx7.html` in a WASM-enabled browser and enjoy cool authentic FM sounds straight in browser. Works with MIDI and embedded virtual keyboard.
+
+
+
 
 
 

@@ -17,13 +17,17 @@
 #ifndef __SYNTH_H
 #define __SYNTH_H
 
-// This may not be present on MSVC.
+// This IS not be present on MSVC.
 // See http://stackoverflow.com/questions/126279/c99-stdint-h-header-and-ms-visual-studio
 #include <stdint.h>
+#ifdef _MSC_VER
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int16 SInt16;
+#endif
 
-// TODO(raph): move from fixed to variable N
-#define LG_N 6
-#define N (1 << LG_N)
+const static int LG_N = 6;
+const static int N = (1 << LG_N);
 
 #if defined(__APPLE__)
 #include <libkern/OSAtomic.h>
@@ -34,10 +38,12 @@
 #endif
 #endif
 
+
 // #undef SynthMemoryBarrier()
 
 #ifndef SynthMemoryBarrier
-#warning Memory barrier is not enabled
+// need to understand why this must be defined
+// #warning Memory barrier is not enabled
 #define SynthMemoryBarrier()
 #endif
 
@@ -51,18 +57,15 @@ inline static T max(const T& a, const T& b) {
     return a > b ? a : b;
 }
 
-#ifdef HAVE_NEON
-#include <cpu-features.h>
+void dexed_trace(const char *source, const char *fmt, ...);
 
-static inline bool hasNeon() {
-  return (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0;
-}
-#else
-static inline bool hasNeon() {
-  return false;
-}
-#endif
-
-
+#define QER(n,b) ( ((float)n)/(1<<b) )
+//#ifndef TRACE
+//    #ifdef _MSC_VER
+//        #define TRACE(fmt, ...) dexed_trace(__FUNCTION__,fmt,##__VA_ARGS__)
+//    #else
+//        #define TRACE(fmt, ...) dexed_trace(__PRETTY_FUNCTION__,fmt,##__VA_ARGS__)
+//    #endif
+//#endif
 
 #endif  // __SYNTH_H

@@ -12,7 +12,7 @@
 #include "sin.h"
 #include "pitchenv.h"
 
-extern "C" { void* createModule() { return new DX7(); } }
+extern "C" { EMSCRIPTEN_KEEPALIVE void* createModule() { return new DX7(); } }
 
 const char* DX7::init(uint32_t bufsize, uint32_t sr, void* desc)
 {

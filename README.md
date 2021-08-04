@@ -40,8 +40,8 @@ Now that you've built webdx7 and put the files in place, copy some DX7 sysex fil
 
 Finally open `dist/dx7.html` in a WASM-enabled browser and enjoy cool authentic FM sounds straight in browser. Works with MIDI and embedded virtual keyboard.
 
-
-
-
-
-
+## licenses
+- webdx7 code is MIT licensed
+- MSFA is Apache 2.0 licensed
+- tuning-library is [permissively licensed](/src/c/tuning-library/LICENSE.md)
+See [here](https://github.com/webaudiomodules/webdx7/issues/7#issuecomment-809681630)

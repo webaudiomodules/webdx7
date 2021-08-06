@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,6 +33,7 @@
 #include "patch.h"
 #include "synth_unit.h"
 #include "aligned_buf.h"
+#include "tuning.h"
 
 char epiano[] = {
   95, 29, 20, 50, 99, 95, 0, 0, 41, 0, 19, 0, 115, 24, 79, 2, 0,
@@ -41,7 +42,7 @@ char epiano[] = {
   95, 20, 20, 50, 99, 95, 0, 0, 0, 0, 0, 0, 59, 8, 99, 2, 0,
   95, 50, 35, 78, 99, 75, 0, 0, 0, 0, 0, 0, 59, 28, 58, 28, 0,
   96, 25, 25, 67, 99, 75, 0, 0, 0, 0, 0, 0, 83, 8, 99, 2, 0,
-  
+
   94, 67, 95, 60, 50, 50, 50, 50, 4, 6, 34, 33, 0, 0, 56, 24,
   69, 46, 80, 73, 65, 78, 79, 32, 49, 32
 };
@@ -57,8 +58,9 @@ void SynthUnit::Init(double sample_rate) {
 
 SynthUnit::SynthUnit(RingBuffer *ring_buffer) {
   ring_buffer_ = ring_buffer;
+
   for (int note = 0; note < max_active_notes; ++note) {
-    active_note_[note].dx7_note = new Dx7Note;
+    active_note_[note].dx7_note = new Dx7Note(createStandardTuning());
     active_note_[note].keydown = false;
     active_note_[note].sustained = false;
     active_note_[note].live = false;
@@ -128,7 +130,7 @@ int SynthUnit::ProcessMidiMessage(const uint8_t *buf, int buf_size) {
     if (buf_size >= 3) {
       // note off
       for (int note = 0; note < max_active_notes; ++note) {
-        if (active_note_[note].midi_note == buf[1] && 
+        if (active_note_[note].midi_note == buf[1] &&
             active_note_[note].keydown) {
           if (sustain_) {
             active_note_[note].sustained = true;
@@ -151,7 +153,7 @@ int SynthUnit::ProcessMidiMessage(const uint8_t *buf, int buf_size) {
         active_note_[note_ix].keydown = true;
         active_note_[note_ix].sustained = sustain_;
         active_note_[note_ix].live = true;
-        active_note_[note_ix].dx7_note->init(unpacked_patch_, buf[1], buf[2]);
+        active_note_[note_ix].dx7_note->init((uint8_t *) unpacked_patch_, buf[1], buf[2]);
       }
       return 3;
     }
@@ -293,7 +295,7 @@ void SynthUnit::onPatch(const uint8_t* patch, uint32_t size)
 		unpacked_patch_[155] = 0x3f;  // operator on/off
 	}
 	else return;
-	lfo_.reset(unpacked_patch_ + 137);
+	lfo_.reset((const char *)unpacked_patch_);
 }
 
 void SynthUnit::onParam(uint32_t id, char value)

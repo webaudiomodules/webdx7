@@ -30,6 +30,7 @@
 #include "sin.h"
 #include "exp2.h"
 #include "pitchenv.h"
+#include "env.h"
 #include "patch.h"
 #include "synth_unit.h"
 #include "aligned_buf.h"
@@ -54,6 +55,7 @@ void SynthUnit::Init(double sample_rate) {
   Sin::init();
   Lfo::init(sample_rate);
   PitchEnv::init(sample_rate);
+  Env::init_sr(sample_rate);
 }
 
 SynthUnit::SynthUnit(RingBuffer *ring_buffer) {
@@ -69,10 +71,14 @@ SynthUnit::SynthUnit(RingBuffer *ring_buffer) {
   memcpy(patch_data_, epiano, sizeof(epiano));
   ProgramChange(0);
   current_note_ = 0;
-  /* JJK filter_control_[0] = 258847126;
-  filter_control_[1] = 0;
-  filter_control_[2] = 0; */
+
   controllers_.values_[kControllerPitch] = 0x2000;
+  controllers_.modwheel_cc = 0;
+  controllers_.foot_cc = 0;
+  controllers_.breath_cc = 0;
+  controllers_.aftertouch_cc = 0;
+  controllers_.refresh();
+
   sustain_ = false;
   extra_buf_size_ = 0;
 }
@@ -164,14 +170,17 @@ int SynthUnit::ProcessMidiMessage(const uint8_t *buf, int buf_size) {
       // TODO: move more logic into SetController
       int controller = buf[1];
       int value = buf[2];
-      /* JJK if (controller == 1) {
-        filter_control_[0] = 142365917 + value * 917175;
-      } else if (controller == 2) {
-        filter_control_[1] = value * 528416;
-      } else if (controller == 3) {
-        filter_control_[2] = value * 528416;
-      } else */
-		if (controller == 64) {
+
+    if (controller == 1) {
+      controllers_.modwheel_cc = value;
+      controllers_.refresh();
+    } else if (controller == 2) {
+      controllers_.breath_cc = value;
+      controllers_.refresh();
+    } else if (controller == 3) {
+      controllers_.foot_cc = value;
+      controllers_.refresh();
+    } else if (controller == 64) {
         sustain_ = value != 0;
         if (!sustain_) {
           for (int note = 0; note < max_active_notes; note++) {
@@ -184,6 +193,10 @@ int SynthUnit::ProcessMidiMessage(const uint8_t *buf, int buf_size) {
       }
       return 3;
     } return 0;
+  } else if (cmd_type == 0xd0) {
+    controllers_.aftertouch_cc = buf[1];
+    controllers_.refresh();
+    return 0;
   } else if (cmd_type == 0xc0) {
     if (buf_size >= 2) {
       // program change

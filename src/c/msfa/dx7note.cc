@@ -143,7 +143,8 @@ Dx7Note::Dx7Note(std::shared_ptr<TuningState> ts) : tuning_state_(ts) {
 void Dx7Note::init(const uint8_t patch[156], int midinote, int velocity) {
     int rates[4];
     int levels[4];
-    playingMidiNote = midinote;
+    int transpose = patch[144] - 24;
+    playingMidiNote = midinote + transpose;
     for (int op = 0; op < 6; op++) {
         int off = op * 21;
         for (int i = 0; i < 4; i++) {
@@ -152,21 +153,21 @@ void Dx7Note::init(const uint8_t patch[156], int midinote, int velocity) {
         }
         int outlevel = patch[off + 16];
         outlevel = Env::scaleoutlevel(outlevel);
-        int level_scaling = ScaleLevel(midinote, patch[off + 8], patch[off + 9],
+        int level_scaling = ScaleLevel(playingMidiNote, patch[off + 8], patch[off + 9],
                                        patch[off + 10], patch[off + 11], patch[off + 12]);
         outlevel += level_scaling;
         outlevel = min(127, outlevel);
         outlevel = outlevel << 5;
         outlevel += ScaleVelocity(velocity, patch[off + 15]);
         outlevel = max(0, outlevel);
-        int rate_scaling = ScaleRate(midinote, patch[off + 13]);
+        int rate_scaling = ScaleRate(playingMidiNote, patch[off + 13]);
         env_[op].init(rates, levels, outlevel, rate_scaling);
 
         int mode = patch[off + 17];
         int coarse = patch[off + 18];
         int fine = patch[off + 19];
         int detune = patch[off + 20];
-        int32_t freq = osc_freq(midinote, mode, coarse, fine, detune);
+        int32_t freq = osc_freq(playingMidiNote, mode, coarse, fine, detune);
         opMode[op] = mode;
         basepitch_[op] = freq;
         ampmodsens_[op] = ampmodsenstab[patch[off + 14] & 3];
@@ -289,14 +290,15 @@ void Dx7Note::keyup() {
 void Dx7Note::update(const uint8_t patch[156], int midinote, int velocity) {
     int rates[4];
     int levels[4];
-    playingMidiNote = midinote;
+    int transpose = patch[144] - 24;
+    playingMidiNote = midinote + transpose;
     for (int op = 0; op < 6; op++) {
         int off = op * 21;
         int mode = patch[off + 17];
         int coarse = patch[off + 18];
         int fine = patch[off + 19];
         int detune = patch[off + 20];
-        basepitch_[op] = osc_freq(midinote, mode, coarse, fine, detune);
+        basepitch_[op] = osc_freq(playingMidiNote, mode, coarse, fine, detune);
         ampmodsens_[op] = ampmodsenstab[patch[off + 14] & 3];
         opMode[op] = mode;
 
@@ -306,14 +308,14 @@ void Dx7Note::update(const uint8_t patch[156], int midinote, int velocity) {
         }
         int outlevel = patch[off + 16];
         outlevel = Env::scaleoutlevel(outlevel);
-        int level_scaling = ScaleLevel(midinote, patch[off + 8], patch[off + 9],
+        int level_scaling = ScaleLevel(playingMidiNote, patch[off + 8], patch[off + 9],
                                        patch[off + 10], patch[off + 11], patch[off + 12]);
         outlevel += level_scaling;
         outlevel = min(127, outlevel);
         outlevel = outlevel << 5;
         outlevel += ScaleVelocity(velocity, patch[off + 15]);
         outlevel = max(0, outlevel);
-        int rate_scaling = ScaleRate(midinote, patch[off + 13]);
+        int rate_scaling = ScaleRate(playingMidiNote, patch[off + 13]);
         env_[op].update(rates, levels, outlevel, rate_scaling);
     }
     algorithm_ = patch[134];

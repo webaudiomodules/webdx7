@@ -308,7 +308,7 @@ void SynthUnit::onPatch(const uint8_t* patch, uint32_t size)
 		unpacked_patch_[155] = 0x3f;  // operator on/off
 	}
 	else return;
-	lfo_.reset((const char *)unpacked_patch_);
+	lfo_.reset((const char *)unpacked_patch_ + 137);
 }
 
 void SynthUnit::onParam(uint32_t id, char value)
